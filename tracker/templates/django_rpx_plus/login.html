@@ -1,0 +1,51 @@
+{% extends "tracker/base.html" %}
+{% load rpx %}
+
+{% block bodyid %}login{% endblock %}
+{% block title %}Login - SERP app{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            //Vertically center content
+            var top_margin = ($(window).height() - $('#content').height())/2;
+            top_margin = top_margin - 40;
+            if (top_margin < 0) top_margin = 10;
+            $('#content').css('margin-top', top_margin);
+        });
+    </script>
+{% endblock %}
+
+{% block header %}{% endblock %}
+
+{# We put our messages inside our box so we don't need the default ones #}
+{% block messages %}{% endblock %}
+
+{% block content %}
+<div id="login_box"><!-- extra wrapper for centering -->
+    
+    <h2>Login to <a href="{% url home %}" class="logo">SERP app</a></h2>
+    
+    {% if messages %}
+    <div id="messages">
+        <ul class="messages">
+            {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+ 
+    {% rpx_embed extra %}
+ 
+</div>
+<div id="whysafe">
+    <small>Signing in with an existing account is <span
+        class="highlight">extremely safe</span>. We never see or store
+    your password. Logging in is handled on the provider's website with full
+    SSL protection.</small>
+</div>
+{% endblock %}
+
+{% block footer %}{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "tracker/base.html" %}
+
+{% block bodyid %}register{% endblock %}
+{% block title %}First time user - SERP app{% endblock %}
+
+{% block content %}
+<div id="welcome">
+    <h2>Welcome to <span class="logo">SERP app</span>!</h2>
+    <p>
+        This is the first time you have logged into our site with this
+        account.<br /><strong>Please choose a username that you'd like to use
+            and provide your email address.</strong>
+    </p>
+</div>
+
+<form action="" method="post" name="register_form" id="register_form">
+    {% csrf_token %}
+    <div class="field">
+        {{ form.username.errors }}
+        <label for="id_username">Username:</label>
+        {{ form.username }}
+    </div>
+    <div class="field">
+        {{ form.email.errors }}
+        <label for="id_email">Email Address:</label>
+        {{ form.email }}
+    </div>
+
+    <button type="submit" name="submit" value="Save">Save &raquo;</button>
+</form>
+
+<div id="associate_helper">
+    Or, you can <a href="{% url auth_associate %}">associate this account with an existing username</a>.
+    <small>(Note: You must sign in with your existing account first.)</small>
+</div>
+
+{% endblock %}

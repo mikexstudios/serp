@@ -1,0 +1,8 @@
+#!/bin/bash
+
+cd /home/serp/prod/serp/
+source env/bin/activate
+# envuidgid sets $UID and $GID of process to the user, but the process is
+# started as root. I believe this is necessary if we are running the service
+# at a low port number. But since we aren't, we can use setuidgid.
+exec setuidgid serp python manage.py runfcgi method=threaded host=127.0.0.1 port=8085 pidfile=fcgi.pid minspare=2 maxspare=6 daemonize=false

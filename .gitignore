@@ -1,0 +1,19 @@
+/env/
+/development.db
+/src
+
+/celeryd.log
+/celerybeat-schedule*
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django stuff:
+*.log
+/local_settings.py
+
+# Deployment
+pip-log.txt
+fcgi.pid

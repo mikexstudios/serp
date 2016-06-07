@@ -1,0 +1,27 @@
+# nginx config file for serpapp.com (dev)
+
+server {
+    listen 80;
+    server_name dev.serpapp.com;
+    access_log /home/serp/dev/logs/access.log;
+    error_log /home/serp/dev/logs/error.log;
+
+    location /static {
+        #autoindex on;
+        #index index.html;
+        root /home/serp/dev/serp/;
+        #expires 1d;
+    }
+    
+    location /admineral/static {
+        #autoindex on;
+        #index index.html;
+        alias /home/serp/dev/serp/env/src/django/django/contrib/admin/media;
+        #expires 1d;
+    }
+
+    location / {
+        include /etc/nginx/fastcgi_params;
+        fastcgi_pass 127.0.0.1:8086;
+    }
+}

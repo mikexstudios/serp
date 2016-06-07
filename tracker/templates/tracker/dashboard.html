@@ -1,0 +1,124 @@
+{% extends "tracker/base.html" %}
+{% block bodyid %}dashboard{% endblock %}
+
+{% block title %}Dashboard - SERP app{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.shiftcheckbox.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            //Hide action submit button if we are using jquery
+            $('#actions_form button').hide();
+            $('#action_list').change(function(e) {
+                var action = $(this).val();
+                if (action != 'actions') {
+                    //Check if any checkboxes were selected.
+                    if ($('.track_chk:checked').length > 0) {
+                        //Submit form. For some reason, triggering submit on the
+                        //form doesn't work. So we click the button instead.
+                        $('#actions_form button').trigger('click');
+                    } else {
+                        //Otherwise, display error message and reset the select to
+                        //'Actions'
+                        alert('Please select at least one ID first.');
+                        $('#action_list').val('actions');
+                    }
+                }
+            });
+            //Enable shift selecting multiple checkboxes
+            $('.track_chk').shiftcheckbox();
+
+            $('#check_all').click(function() {
+                $('.track_chk').attr('checked', true);
+                return false;
+            });
+            $('#check_none').click(function() {
+                $('.track_chk').removeAttr('checked');
+                return false;
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+<h2 id="title">Dashboard</h2>
+<form action="{% url dashboard_actions %}" method="POST" id="actions_form">
+{% csrf_token %}
+
+<div id="actions">
+    <div class="left">
+        <span class="select_helper">
+            Select: <a href="#" id="check_all">All</a>, <a href="#" id="check_none">None</a>
+        </span>
+        <select id="action_list" name="action">
+            <option value="actions">Actions</option>
+            <option value="refresh">&nbsp;&nbsp;Refresh</option>
+            <option value="archive">&nbsp;&nbsp;Archive</option>
+            <option value="delete">&nbsp;&nbsp;Delete</option>
+        </select>
+        <button type="submit" name="submit" value="submit">Submit</button>
+    </div>
+    <div class="right">
+        <a href="{% url add %}">Add URL</a>
+    </div>
+</div>
+
+<table id="trackers">
+    <thead>
+        <tr>
+            <th class="checkbox">✓</th>
+            <th class="id">ID</th>
+            <th class="keyword">Search Term</th>
+            <th class="url">URL</th>
+            <th class="position">Rank</th>
+            <!-- <th class="incoming_links">Incoming Links</th> -->
+            <th class="pagerank">PR</th>
+            <th class="actions">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for t in tracks %}
+        <tr class="{% cycle 'odd' 'even' %}">
+            <td class="checkbox center"><input type="checkbox" class="track_chk" name="id" value="{{ t.local_id }}" /></td>
+            <td class="id center"><a href="{% url history t.local_id %}">{{ t.local_id }}</a></td>
+            <td class="keyword"><a href="http://www.google.com/search?q={{ t.keyword }}">{{ t.keyword }}</a></td>
+            <td class="url"><a href="{{ t.url }}">{{ t.url }}</a></td>
+            {% with t.latest_check.change_from_previous_position as change %}
+            <td class="position">
+                <span>{{ t.latest_check.position|default:'-' }}</span>
+                {# NOTE we use AND here since 'up' and 'down' > 0 => True #}
+                {# We also need to check for '' since if latest_check doesn't exist #}
+                {# the None somehow becomes '', which is > 0 => True #}
+                {% if change != 'down' and change > 0 and change != '' %}
+                    {# We use this hackish method to determine if we have a number #}
+                    {# since 'up' > 0 is true. #}
+                    <small class="up">{% if change != 'up' %}+{{ change }}{% else %}<img src="{{ MEDIA_URL }}images/arrow_up_15.png" />{% endif %}</small>
+                {% endif %}
+                {% if change == 'down' or change < 0 %}
+                    <small class="down">{% if change != 'down' %}{{ change }}{% else %}<img src="{{ MEDIA_URL }}images/arrow_down_15.png" />{% endif %}</small>
+                {% endif %}
+                {% if change == 0 or change == ''%}
+                    <small class="no_change">-</small>
+                {% endif %}
+            </td>
+            {% endwith %}
+            <!-- <td class="center">2</td> -->
+            <td class="pagerank center">{{ t.latest_check.pagerank|default_if_none:'-' }}</td>
+            <td class="actions center"><a href="{% url history t.local_id %}">History</a></td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="7" class="empty center">Click the <strong>Add URL</strong> button to track your first URL!</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div id="tail">
+    <a href="{% url archived %}" id="archived_link">View archived URLs &raquo;</a>
+</div>
+
+</form>
+{% endblock %}
+

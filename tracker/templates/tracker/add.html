@@ -1,0 +1,82 @@
+{% extends "tracker/base.html" %}
+{% block bodyid %}add{% endblock %}
+
+{% block title %}Add URL For Tracking - SERP app{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#show_examples_link').toggle(function() {
+                $('#url_help').slideDown();
+                $(this).html('hide examples');
+            }, function() {
+                $('#url_help').slideUp();
+                $(this).html('show examples');
+            });
+        
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+<a href="{% url dashboard %}" id="back">&laquo; back to dashboard</a>
+
+<h2 id="title">Add a URL for Tracking</h2>
+
+<div id="usage">
+    <dl>
+        <dt class="numbers"><em>{{ user_num_tracks }}</em>/{{ num_tracks_max }}</dt>
+        <dt class="label">Tracked URLs</dt>
+        <dd><span style="width:{{ percent_used|floatformat:1 }}%">{{ percent_used|floatformat:1 }}%</span></dd>
+    </dl>
+</div>
+
+{% if not is_reached_limit %}
+<form action="" method="POST" id="add_url_form">
+    {% csrf_token %}
+    <div class="field">
+        <label for="id_keyword">Search phrase:</label>
+        {{ form.keyword.errors }}
+        {{ form.keyword }}
+    </div>
+    <div class="field">
+        <label for="id_url">URL:</label> 
+        <small>(<span class="highlight">wildcard enabled</span>, 
+        <a href="#" id="show_examples_link">show examples</a>)</small>
+        {{ form.url.errors }}
+        {{ form.url }}
+        <div id="url_help" class="help">
+            <strong>Examples:</strong>
+            <ul>
+                <li><code>http://www.example.com/</code> matches
+                <strong>only</strong> http://www.example.com or
+                http://www.example.com/.</li>
+                <li><code>http://www.example.com/*</code> matches <strong>all
+                pages</strong> under http://www.example.com/ like
+                http://www.example.com/article-1/ or
+                http://www.example.com/test.png. Does <strong>not</strong>
+                match http://www.example.com.</li>
+                <li><code>http://*.example.com/</code> matches <strong>all
+                subdomains</strong> under example.com like
+                http://www.example.com/ or
+                http://blog.example.com/. Does <strong>not</strong>
+                match http://example.com/.</li>
+            </ul>
+        </div>
+    </div>
+    <button type="submit" name="submit" value="submit">Track this URL!</button>
+</form>
+{% else %}
+{# User has reached plan limit. #}
+<div id="planlimit">
+    <p>You currently reached the maximum number of URLs (<strong>{{ num_tracks_max }}
+    total</strong>) you can track. However, you may be interested in
+    <strong>archiving</strong> or <strong>deleting</strong> an actively tracked URL
+    to make space for adding more URLs. To do this, use the actions on the 
+    <a href="{% url dashboard %}">Dashboard</a> page.</p>
+</div>
+{% endif %}
+
+{% endblock %}
+

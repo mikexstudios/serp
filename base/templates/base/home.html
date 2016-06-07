@@ -1,0 +1,36 @@
+{% extends "tracker/base.html" %}
+{% block bodyid %}home{% endblock %}
+
+{% block title %}SERP app - automated search engine ranking/position tracker{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.fancy-button').each(function(){
+                //Only works with text links right now.
+                var t = $(this).html();
+                $(this).html('<span class="tl"></span><span class="bl"><span class="tr"></span><span class="br"></span>' + t + '</span>')
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+<h2 id="catchphrase">simple search position tracking</h2>
+<p id="catchphrase-helper">
+<span class="logo">SERP app</span> automates search engine ranking/position
+tracking. Simply set your keywords and URLs; then we will take care of the
+rest. <em>It's that easy</em>.
+
+<a href="{% url signup %}">Save time and effort by signing up today &raquo;</a>
+</p>
+
+<div id="middle">
+    <img src="{{ MEDIA_URL }}images/combined_700x240.png" id="screenshot" />
+    <a href="{% url signup %}" id="signup" class="fancy-button">Click
+    here to get a free account in <strong>just seconds</strong>
+    &raquo;</a>
+</div>
+{% endblock %}
+

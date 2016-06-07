@@ -1,0 +1,50 @@
+{% extends "tracker/base.html" %}
+{% load rpx %}
+
+{% block bodyid %}associate{% endblock %}
+{% block title %}Associate a new login - SERP app{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.delete').click(function() {
+                var answer = confirm("Are you sure?")
+                if (answer) { return true; }
+                else { return false; };
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+<h2 id="title">Manage associated logins</h2>
+<div id="description">
+    <p>You are currently a <strong>registered</strong> user. Here are the logins
+    you have associated with your account:</p>
+</div>
+
+<div id="associated_logins">
+    {% for rpxdata in rpxdatas %}
+    <dl>
+        <dt>{{ rpxdata.provider }}:</dt>
+        <dd>
+            <input type="text" class="user_identifier" value="{{ rpxdata.identifier }}" /> 
+            {% if rpxdatas|length > 1 %}
+            <a href="{% url auth_delete_associated rpxdata.id %}" class="delete">(delete)</a>
+            {% endif %}
+        </dd>
+    </dl>
+    {% endfor %}
+</div>
+<div id="add_login">
+    <p>{% rpx_link "To add another login to your account, click here to sign in with a <em>different</em> login." extra rpx_response_path %}</p>
+    <p class="helper">NOTE: You may have to click the <strong>(not you?)</strong> link to see all account signin options.</p>
+</div>
+
+{% endblock %}
+
+{% block bodyend %}
+    {# We set the 'show_provider_list' flag so that user doesn't have to click (This isn't me) #}
+    {% rpx_script extra rpx_response_path 'show_provider_list' %}
+{% endblock %}

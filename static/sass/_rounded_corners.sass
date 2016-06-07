@@ -1,0 +1,32 @@
+// round corners (base)
+= border-radius(!radius = 10px)
+  -moz-border-radius= !radius
+  -webkit-border-radius= !radius
+  border-radius= !radius
+
+// top rounded corners
+= border-top-radius(!radius = 10px)
+  +border-top-left-radius(!radius)
+  +border-top-right-radius(!radius)
+
+= border-top-left-radius(!radius = 10px)
+  +border-corner-radius(!radius, "top", "left")
+
+= border-top-right-radius(!radius = 10px)
+  +border-corner-radius(!radius, "top", "right")
+
+// bottom rounded corners
+= border-bottom-radius(!radius = 10px)
+  +border-bottom-left-radius(!radius)
+  +border-bottom-right-radius(!radius)  
+
+= border-bottom-left-radius(!radius = 10px)
+  +border-corner-radius(!radius, "bottom", "left")
+
+= border-bottom-right-radius(!radius = 10px)
+  +border-corner-radius(!radius, "bottom", "right")
+
+= border-corner-radius(!radius, !vertical_position, !horizontal_position)
+  :-moz-border-radius-#{!vertical_position}#{!horizontal_position}= !radius
+  :-webkit-border-#{!vertical_position}-#{!horizontal_position}-radius= !radius
+  :border-#{!vertical_position}-#{!horizontal_position}-radius= !radius

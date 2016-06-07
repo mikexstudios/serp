@@ -1,0 +1,205 @@
+{% extends "tracker/base.html" %}
+{% block bodyid %}history{% endblock %}
+
+{% block title %}&#8220;{{ track.keyword }}&#8221; history - SERP app{% endblock %}
+
+{% block javascript %}
+    {% if track.check_set_done.count >= 2 %}
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    {% endif %}
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.periodicalupdater.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#refresh_link').click(function() {
+                $this = $(this);
+
+                var action_url = $this.attr('href');
+                var post_data = {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                };
+
+                $.post(action_url, post_data, function(data) {
+                    $this.hide();
+                    if (data['success']) {
+                        //Replace with spinner.
+                        var spinner = $this.next();
+                        spinner.show();
+
+                        //Now poll for update. Because the refresh isn't instantly
+                        //added, we sleep for 5 sec initially.
+                        setTimeout(function() {
+                            poll_refresh(action_url + 'poll/', function() {
+                                //spinner.hide();
+
+                                //Refresh the page. TODO: AJAX load new content.
+                                location.reload(true);
+                            });
+                        }, 10000); //10 sec (can adjust to avg time of check)
+                    } else {
+                        //Handle the error.
+                        if (data['error']) {
+                            $this.after('<small class="error">'+data['error']+'</small>');
+                        } else {
+                            $this.after('<small class="error">Unable to refresh ranking. Please try again later.</small>');
+                        }
+                    }
+                }, 'json');
+
+                return false;
+            });
+
+            {% comment %} 
+            If even one check doesn't exist, then we will activate the refresh now
+            link so that the page will automatically refresh once the first check
+            is done.
+            {% endcomment %}
+            {% if not track.latest_check %}
+            $('#refresh_link').trigger('click');
+            {% endif %}
+
+        });
+
+        function poll_refresh(poll_url, done_func) {
+            $.PeriodicalUpdater(poll_url, {
+                method: 'get',          // method; get or post
+                minTimeout: 1000,       // starting value for the timeout in milliseconds
+                maxTimeout: 10000,      // maximum length of time between requests
+                multiplier: 2,          // if set to 2, timerInterval will double each time the response hasn't changed (up to maxTimeout)
+                type: 'json',           // response type - text, xml, json, etc. See $.ajax config options
+                maxCalls: 50,           // maximum number of calls. 0 = no limit.
+                autoStop: 0             // automatically stop requests after this many returns of the same data. 0 = disabled.
+            }, function(data) {
+                // Handle the new data (only called when there was a change)
+                if (data['all_done'] == true) {
+                    done_func();
+                    //.stop() prevents anything else from executing so we put this
+                    //last.
+                    data.stop();
+                } 
+                //TODO: Determine the progress of the refresh.
+            });
+        }
+        
+        {% if track.check_set_done.count >= 4 %}
+        //Load the Visualization API and the piechart package.
+        google.load('visualization', '1', {'packages':['annotatedtimeline']});
+
+        // Set a callback to run when the Google Visualization API is loaded.
+        //google.setOnLoadCallback(drawChart);
+        google.setOnLoadCallback(draw_history);
+
+        function draw_history() {
+            //Create new chart
+            var id = document.getElementById('position_graph');
+            var chart = new google.visualization.AnnotatedTimeLine(id);
+
+            //Set datasource
+            datasource = new google.visualization.Query('{% url history_data track.local_id %}');
+
+            //Draw chart
+            datasource.send(function(response) {
+                chart.draw(response.getDataTable(), {
+                    'thickness': 2,
+                    //We use negative values to 'fake' reversing the y-axis. We
+                    //then format the number to remove the negative sign.
+                    'numberFormats': ';###',
+                    'max': 1,
+                    //Note that month is zero indexed.
+                    //'zoomStartTime': new Date(2010, 3, 1),
+                });
+            });
+        }
+        {% endif %}
+    </script>
+{% endblock %}
+
+{% block messages %}{% endblock %}
+
+{% block content %}
+<a href="{% url dashboard %}" id="back">&laquo; back to dashboard</a>
+
+{% if messages %}
+<div id="messages">
+    <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<h2 id="title">{{ track.local_id }}. <a href="http://www.google.com/search?q={{ track.keyword }}">{{ track.keyword }}</a> history</h2>
+
+<dl id="information">
+    <dt>Tracking URL</dt>
+    <dd class="url">
+        {% if '*' in track.url %}
+        {{ track.url }}
+        {% else %}
+        <a href="{{ track.url }}">{{ track.url }}</a> 
+        {% endif %}
+    </dd>
+    <dt>Search Term</dt> 
+    <dd class="keyword"><a href="http://www.google.com/search?q={{ track.keyword }}">{{ track.keyword }}</a></dd>
+    <dt>Current Rank</dt> 
+    <dd class="position">{{ track.latest_check.position|default:"Unranked" }}</a></dd>
+    <dt>Last Checked</dt> 
+    <dd class="last_checked">
+        {# We use latest_check instead of last_checked to fix bug when new URL is #}
+        {# added and displayed like 2010 years ago last checked. #}
+        {% if track.latest_check %}
+        {{ track.latest_check.created|timesince }} ago
+        {% else %}
+        In progress
+        {% endif %}
+        <a href="{% url refresh track.local_id %}" id="refresh_link" {% if not is_refresh_interval %}class="disabled"{% endif %}>(refresh now)</a>
+        <img src="{{ MEDIA_URL }}images/ajax_spinner.gif" id="refresh_link_spinner" class="ajax_spinner" />
+    </dd>
+</dl>
+
+<!-- Used by Google Viz API. width/height must be explicitly stated. -->
+{# 800px is the page width #}
+<div id="position_graph" style="width: 800px; height: 240px;">
+    {% if track.check_set_done.count < 4 %}
+    <img src="{{ MEDIA_URL }}images/inactive_history_graph.png" />  
+    {% endif %}
+</div>
+
+<div id="checks">
+    <h3>Most Recent Checks</h3>
+    {% for offset, checks in checks_parts %}
+    <table class="checks_table">
+        <thead>
+            <tr>
+                <th class="id">#</th>
+                <th class="position">Rank</th>
+                <!-- <th class="incoming_links">Incoming Links</th> -->
+                <th class="pagerank">PR</th>
+                <th class="date">Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {# We use the offset to make the 2nd and 3rd tables start at #}
+            {# correct number. #}
+            {% for c in checks %}
+            <tr class="{% cycle 'odd' 'even' %}">
+                <td class="id center">{{ forloop.counter|add:offset }}</td>
+                <td class="position center">{{ c.position|default:'-' }}</td>
+                {# Note that pagerank can be 0 which equals False. So we use _if_none #}
+                <td class="pagerank center">{{ c.pagerank|default_if_none:'-' }}</td>
+                <td class="date"><span title="{{ c.created|date:"m/n/Y h:i A" }}">{{ c.created|timesince }} ago</span></td>
+            </tr>
+            {% empty %}
+            <tr class="">
+                <td colspan="4" class="empty center">Nothing here yet!</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% empty %}
+    <p id="no_checks">Your first check is in progress and will be shown soon!</p>
+    {% endfor %}
+</div>
+{% endblock %}
+

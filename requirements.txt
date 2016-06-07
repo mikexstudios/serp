@@ -1,0 +1,46 @@
+# pip requirements.txt file
+# See this file for sample syntax:
+# http://gist.github.com/192093
+# and also:
+# http://mathematism.com/2009/jul/30/presentation-pip-and-virtualenv/
+
+#Using django's trunk in preparation for django 1.2
+Django == 1.2.7
+#-e git://github.com/django/django.git#egg=django
+
+#Current version is: MySQL-python-1.2.3c1
+#pip seems to have problems installing from sourceforge. So here's a direct link:
+#http://downloads.sourceforge.net/project/mysql-python/mysql-python-test/1.2.3c1/MySQL-python-1.2.3c1.tar.gz?use_mirror=voxel
+#MySQL-python
+
+#So many awesome things in this app to simplify django dev:
+django-annoying == 0.7.6
+
+#For easy database migrations!
+South == 0.7.3
+
+#django-rpx-plus (depends on django-picklefield, automatically installed):
+#NOTE: We need to pin django-picklefield here since django-rpx-plus (at the
+#      given commit hash does not have it pinned.
+django-picklefield==0.1.6
+-e git://github.com/mikexstudios/django-rpx-plus.git@463fa9957c198f3efaa2275050975c2489502317#egg=django_rpx_plus
+
+#Messaging/work queue (depends on amqplib, anyjson, billiard, carrot, importlib,
+#and python-dateutil).
+billiard==0.2.3
+celery==1.0.6
+
+#To make email field 254 char.
+#django_auth_longer_email
+
+#For maintenance mode
+#-e git://github.com/mikexstudios/django-fakewall.git#egg=django_fakewall
+
+#For django admin docs
+docutils==0.6
+
+#For creating a datasource for using Google Visualization API
+-e git://github.com/google/google-visualization-python.git@eff2b09ec760b49cc16d47fc4d4aaa358d001ae8#egg=gviz_api
+
+#For scraping search results.
+BeautifulSoup==3.2.1

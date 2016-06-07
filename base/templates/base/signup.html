@@ -1,0 +1,35 @@
+{% extends "tracker/base.html" %}
+{% load rpx %}
+
+{% block bodyid %}signup{% endblock %}
+
+{% block title %}Sign up in One Step- SERP app{% endblock %}
+
+{% comment %}
+{% block javascript %}
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+        });
+    </script>
+{% endblock %}
+{% endcomment %}
+
+{% block content %}
+
+<h2 id="catchphrase">Step 1 of 1: Login</h2>
+<p id="catchphrase-helper">
+    Sign up by logging in with an existing account! It's that easy.
+</p>
+
+{% rpx_embed %}
+
+<div id="whysafe">
+    <small>Signing in with an existing account is <span
+        class="highlight">extremely safe</span>. We never see or store
+    your password. Logging in is handled on the provider's website with full
+    SSL protection.</small>
+</div>
+
+{% endblock %}
+

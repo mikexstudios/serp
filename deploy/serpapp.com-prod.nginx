@@ -1,0 +1,33 @@
+# nginx config file for serpapp.com (prod)
+
+server {
+    listen 80;
+    server_name www.serpapp.com;
+    rewrite ^/(.*) http://serpapp.com/$1 permanent;
+}
+
+server {
+    listen 80;
+    server_name serpapp.com;
+    access_log /home/serp/prod/logs/access.log;
+    error_log /home/serp/prod/logs/error.log;
+
+    location /static {
+        #autoindex on;
+        #index index.html;
+        root /home/serp/prod/serp/;
+        #expires 1d;
+    }
+    
+    location /admineral/static {
+        #autoindex on;
+        #index index.html;
+        alias /home/serp/prod/serp/env/src/django/django/contrib/admin/media;
+        #expires 1d;
+    }
+
+    location / {
+        include /etc/nginx/fastcgi_params;
+        fastcgi_pass 127.0.0.1:8085;
+    }
+}

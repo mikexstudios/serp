@@ -1,0 +1,23 @@
+# pip requirements.txt file
+# This file contains extra modules needed for local dev environment!
+
+#Helpful for debugging:
+#django-debug-toolbar >= 0.8.0
+
+#Interactive programming:
+#NOTE: On OS X, the included readline library doesn't play well with ipython. The
+#      solution is to install the readline package. However, we need to use
+#      easy_install to install readline before ipython since when pip installs
+#      readline, it adds to the end of import PATHs. So the library isn't picked up.
+#readline
+#ipython
+
+#For easy deployment
+#fabric
+
+#For testing
+#django-test-utils
+
+#For python 2.5:
+multiprocessing
+simplejson
