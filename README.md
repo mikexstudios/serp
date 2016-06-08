@@ -1,6 +1,10 @@
 SERP app
 ========
 
+**This script is no longer developed with last commits in 2010.**
+
+<img src="https://github.com/mikexstudios/serp/blob/master/screenshots/combined_700x240.png" alt="home">
+
 SERP app (where SERP stands for "Search Engine Results Page") is a search engine
 ranking tracking app. Given a website and keywords, this app will track the
 ranking of that website for those keywords over time and visualize this data
@@ -9,6 +13,25 @@ on a dashboard.
 The goal was to offer this app as a SaaS service for optimizing search engine
 ranking. By tracking search ranking for keywords, users can see how specific
 changes to their website affect rankings.
+
+## Screenshots
+
+<table>
+<tr>
+  <td align="center">
+   <img src="https://github.com/mikexstudios/serp/blob/master/screenshots/dashboard.png" width="100%">
+   <p><strong>Dashboard</strong></p>
+  </td>
+  <td align="center">
+    <img src="https://github.com/mikexstudios/serp/blob/master/screenshots/add.png" width="100%">
+    <p><strong>Adding a new link</strong></p>
+  </td>
+  <td align="center">
+    <img src="https://github.com/mikexstudios/serp/blob/master/screenshots/history%20upload-mp3.png" width="100%">
+    <p><strong>Ranking history for a link</strong></p>
+  </td>
+</tr>
+</table>
 
 ## Usage
 
